@@ -1,8 +1,11 @@
+```makefile
 TARGET = GT2-Vita
+TITLEID = GT2V00001
 
 PREFIX = $(VITASDK)/arm-vita-eabi
-CC = $(PREFIX)/bin/arm-vita-eabi-gcc
 
+CC = $(PREFIX)/bin/arm-vita-eabi-gcc
+CXX = $(PREFIX)/bin/arm-vita-eabi-g++
 CFLAGS = -O2 -Wall -Wextra \
          -I. \
          -Iruntime \
@@ -24,17 +27,36 @@ SOURCES = \
 
 OBJECTS = $(SOURCES:.c=.o)
 
-all: $(TARGET).velf
+ELF = $(TARGET).elf
+VSELF = $(TARGET).self
+VPK = $(TARGET).vpk
 
-$(TARGET).velf: $(OBJECTS)
+all: $(VPK)
+
+$(ELF): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+
+$(VSELF): $(ELF)
+	vita-make-fself $< $@
+
+param.sfo:
+	vita-mksfoex -s TITLE_ID=$(TITLEID) "$(TARGET)" $@
+
+$(VPK): $(VSELF) param.sfo
+	vita-pack-vpk \
+	-sce_sys/param.sfo=$< \
+	-sce_sys/eboot.bin=$(VSELF) \
+	$@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJECTS)
-	rm -f $(TARGET).velf
-	rm -f $(TARGET).elf
+	rm -f $(ELF)
+	rm -f $(VSELF)
+	rm -f param.sfo
+	rm -f $(VPK)
 
 .PHONY: all clean
+```
