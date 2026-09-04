@@ -1,0 +1,40 @@
+TARGET = GT2-Vita
+
+PREFIX = $(VITASDK)/arm-vita-eabi
+CC = $(PREFIX)/bin/arm-vita-eabi-gcc
+
+CFLAGS = -O2 -Wall -Wextra \
+         -I. \
+         -Iruntime \
+         -Ivita
+
+LDFLAGS =
+
+SOURCES = \
+    vita/main.c \
+    vita/gt2_vita_platform.c \
+    runtime/gt2_runtime.c \
+    runtime/gt2_bin.c \
+    runtime/ps1_compat/cd.c \
+    runtime/ps1_compat/pad.c \
+    runtime/ps1_compat/card.c \
+    runtime/ps1_compat/gpu.c \
+    runtime/ps1_compat/audio.c \
+    runtime/ps1_compat/timer.c
+
+OBJECTS = $(SOURCES:.c=.o)
+
+all: $(TARGET).velf
+
+$(TARGET).velf: $(OBJECTS)
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJECTS)
+	rm -f $(TARGET).velf
+	rm -f $(TARGET).elf
+
+.PHONY: all clean
