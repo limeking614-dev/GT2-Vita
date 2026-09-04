@@ -43,8 +43,10 @@ param.sfo:
 	vita-mksfoex -s TITLE_ID=$(TITLEID) "$(TARGET)" $@
 
 $(VPK): $(VSELF) param.sfo
+	mkdir -p sce_sys
+	cp param.sfo sce_sys/param.sfo
 	vita-pack-vpk \
-	-sce_sys/param.sfo=$< \
+	-sce_sys/param.sfo=sce_sys/param.sfo \
 	-sce_sys/eboot.bin=$(VSELF) \
 	$@
 
